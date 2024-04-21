@@ -1,0 +1,1142 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        #map {
+            width: 1566px;
+            height: 856px;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/kawasan_industri_1.js"></script>
+        <script src="data/Jalan_Kab_name_2.js"></script>
+        <script src="data/Sekolah__3.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[-6.717162550372457,107.35117324616844],[-6.258242487490868,108.19163106624667]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
+          var tagName = event.target.tagName,
+            popup = map._popup;
+          // Also check if flag is already set.
+          if (tagName === "IMG" && popup && !popup._updated) {
+            popup._updated = true; // Set flag to prevent looping.
+            popup.update();
+          }
+        }, true);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_MapboxSatellite_0');
+        map.getPane('pane_MapboxSatellite_0').style.zIndex = 400;
+        var layer_MapboxSatellite_0 = L.tileLayer('https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.webp?sku=101S0AiAdllT3&access_token=pk.eyJ1Ijoiam9uY2hlbWxhIiwiYSI6IjdXUzRocmsifQ.acEmRifqE4Bh2Xz-IY_4Bw', {
+            pane: 'pane_MapboxSatellite_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.maxar.com/">Maxar</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_MapboxSatellite_0;
+        map.addLayer(layer_MapboxSatellite_0);
+        function pop_kawasan_industri_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID_Rencan'] !== null ? autolinker.link(feature.properties['FID_Rencan'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAMOBJ'] !== null ? autolinker.link(feature.properties['NAMOBJ'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ORDE01'] !== null ? autolinker.link(feature.properties['ORDE01'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ORDE02'] !== null ? autolinker.link(feature.properties['ORDE02'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ORDE03'] !== null ? autolinker.link(feature.properties['ORDE03'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ORDE04'] !== null ? autolinker.link(feature.properties['ORDE04'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KODKWS'] !== null ? autolinker.link(feature.properties['KODKWS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['JNSRPR'] !== null ? autolinker.link(feature.properties['JNSRPR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KKOP_1'] !== null ? autolinker.link(feature.properties['KKOP_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KP2B_2'] !== null ? autolinker.link(feature.properties['KP2B_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KRB_03'] !== null ? autolinker.link(feature.properties['KRB_03'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CAGBUD'] !== null ? autolinker.link(feature.properties['CAGBUD'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['RESAIR'] !== null ? autolinker.link(feature.properties['RESAIR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KSMPDN'] !== null ? autolinker.link(feature.properties['KSMPDN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HANKAM'] !== null ? autolinker.link(feature.properties['HANKAM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KKARST'] !== null ? autolinker.link(feature.properties['KKARST'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PTBGMB'] !== null ? autolinker.link(feature.properties['PTBGMB'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MGRSAT'] !== null ? autolinker.link(feature.properties['MGRSAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['RDBUMI'] !== null ? autolinker.link(feature.properties['RDBUMI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REMARK'] !== null ? autolinker.link(feature.properties['REMARK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LUASHA'] !== null ? autolinker.link(feature.properties['LUASHA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID_KP2B_2'] !== null ? autolinker.link(feature.properties['FID_KP2B_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LP2B'] !== null ? autolinker.link(feature.properties['LP2B'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Leng'] !== null ? autolinker.link(feature.properties['Shape_Leng'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Area'] !== null ? autolinker.link(feature.properties['Shape_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_kawasan_industri_1_0() {
+            return {
+                pane: 'pane_kawasan_industri_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(68,148,213,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_kawasan_industri_1');
+        map.getPane('pane_kawasan_industri_1').style.zIndex = 401;
+        map.getPane('pane_kawasan_industri_1').style['mix-blend-mode'] = 'normal';
+        var layer_kawasan_industri_1 = new L.geoJson(json_kawasan_industri_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_kawasan_industri_1',
+            layerName: 'layer_kawasan_industri_1',
+            pane: 'pane_kawasan_industri_1',
+            onEachFeature: pop_kawasan_industri_1,
+            style: style_kawasan_industri_1_0,
+        });
+        bounds_group.addLayer(layer_kawasan_industri_1);
+        map.addLayer(layer_kawasan_industri_1);
+        function pop_Jalan_Kab_name_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Nama'] !== null ? autolinker.link(feature.properties['Nama'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ruas_jln_s</th>\
+                        <td class="visible-with-data" id="ruas_jln_s">' + (feature.properties['ruas_jln_s'] !== null ? autolinker.link(feature.properties['ruas_jln_s'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Jalan_Kab_name_2_0() {
+            return {
+                pane: 'pane_Jalan_Kab_name_2',
+                opacity: 1,
+                color: 'rgba(219,30,42,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Jalan_Kab_name_2');
+        map.getPane('pane_Jalan_Kab_name_2').style.zIndex = 402;
+        map.getPane('pane_Jalan_Kab_name_2').style['mix-blend-mode'] = 'normal';
+        var layer_Jalan_Kab_name_2 = new L.geoJson(json_Jalan_Kab_name_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Jalan_Kab_name_2',
+            layerName: 'layer_Jalan_Kab_name_2',
+            pane: 'pane_Jalan_Kab_name_2',
+            onEachFeature: pop_Jalan_Kab_name_2,
+            style: style_Jalan_Kab_name_2_0,
+        });
+        bounds_group.addLayer(layer_Jalan_Kab_name_2);
+        map.addLayer(layer_Jalan_Kab_name_2);
+        function pop_Sekolah__3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['iddesa'] !== null ? autolinker.link(feature.properties['iddesa'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['provinsi'] !== null ? autolinker.link(feature.properties['provinsi'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['kabkot'] !== null ? autolinker.link(feature.properties['kabkot'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['kecamatan'] !== null ? autolinker.link(feature.properties['kecamatan'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['desa'] !== null ? autolinker.link(feature.properties['desa'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nama'] !== null ? autolinker.link(feature.properties['nama'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['kdinfra'] !== null ? autolinker.link(feature.properties['kdinfra'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['infrastruk'] !== null ? autolinker.link(feature.properties['infrastruk'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['kateg_infr'] !== null ? autolinker.link(feature.properties['kateg_infr'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Sekolah__3_0(feature) {
+            switch(String(feature.properties['infrastruk'])) {
+                case 'MA Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MA Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(223,55,41,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MI Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(231,84,55,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MI Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(238,114,69,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MTs Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(246,144,83,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MTs Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,174,97,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Perguruan Tinggi Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,190,116,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Perguruan Tinggi Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,207,135,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'RA/BA Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,223,154,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'RA/BA Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,239,173,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SD Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,192,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SD Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(238,248,175,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SMK Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(220,240,158,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SMK Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(202,233,140,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SMP Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(184,225,123,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SMP Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(166,217,106,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SMU Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(138,204,98,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SMU Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(110,190,89,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TK Negeri':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(82,177,81,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TK Swasta':
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(54,164,73,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_Sekolah__3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(26,150,65,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Sekolah__3');
+        map.getPane('pane_Sekolah__3').style.zIndex = 403;
+        map.getPane('pane_Sekolah__3').style['mix-blend-mode'] = 'normal';
+        var layer_Sekolah__3 = new L.geoJson(json_Sekolah__3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Sekolah__3',
+            layerName: 'layer_Sekolah__3',
+            pane: 'pane_Sekolah__3',
+            onEachFeature: pop_Sekolah__3,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Sekolah__3_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Sekolah__3);
+        map.addLayer(layer_Sekolah__3);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: 'Sekolah_<br /><table><tr><td style="text-align: center;"><img src="legend/Sekolah__3_MANegeri0.png" /></td><td>MA Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_MASwasta1.png" /></td><td>MA Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_MINegeri2.png" /></td><td>MI Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_MISwasta3.png" /></td><td>MI Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_MTsNegeri4.png" /></td><td>MTs Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_MTsSwasta5.png" /></td><td>MTs Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_PerguruanTinggiNegeri6.png" /></td><td>Perguruan Tinggi Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_PerguruanTinggiSwasta7.png" /></td><td>Perguruan Tinggi Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_RABANegeri8.png" /></td><td>RA/BA Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_RABASwasta9.png" /></td><td>RA/BA Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_SDNegeri10.png" /></td><td>SD Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_SDSwasta11.png" /></td><td>SD Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_SMKNegeri12.png" /></td><td>SMK Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_SMKSwasta13.png" /></td><td>SMK Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_SMPNegeri14.png" /></td><td>SMP Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_SMPSwasta15.png" /></td><td>SMP Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_SMUNegeri16.png" /></td><td>SMU Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_SMUSwasta17.png" /></td><td>SMU Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_TKNegeri18.png" /></td><td>TK Negeri</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_TKSwasta19.png" /></td><td>TK Swasta</td></tr><tr><td style="text-align: center;"><img src="legend/Sekolah__3_20.png" /></td><td></td></tr></table>', layer: layer_Sekolah__3},
+            {label: '<img src="legend/Jalan_Kab_name_2.png" /> Jalan_Kab_name', layer: layer_Jalan_Kab_name_2},
+            {label: '<img src="legend/kawasan_industri_1.png" /> kawasan_industri', layer: layer_kawasan_industri_1},
+            {label: "Mapbox Satellite", layer: layer_MapboxSatellite_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Name": "str","kdinfra": "str","Nama": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Name = document.createElement('div');
+            div_Name.id = "div_Name";
+            div_Name.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Name);
+            sel_Name = document.createElement('select');
+            sel_Name.multiple = true;
+            sel_Name.size = 10;
+            sel_Name.id = "sel_Name";
+            var Name_options_str = "<option value='' unselected></option>";
+            sel_Name.onchange = function(){filterFunc()};
+            Name_options_str  += '<option value="10">10</option>';
+            Name_options_str  += '<option value="100">100</option>';
+            Name_options_str  += '<option value="101">101</option>';
+            Name_options_str  += '<option value="102">102</option>';
+            Name_options_str  += '<option value="103">103</option>';
+            Name_options_str  += '<option value="104">104</option>';
+            Name_options_str  += '<option value="107">107</option>';
+            Name_options_str  += '<option value="108">108</option>';
+            Name_options_str  += '<option value="11">11</option>';
+            Name_options_str  += '<option value="110">110</option>';
+            Name_options_str  += '<option value="112">112</option>';
+            Name_options_str  += '<option value="113">113</option>';
+            Name_options_str  += '<option value="114">114</option>';
+            Name_options_str  += '<option value="115">115</option>';
+            Name_options_str  += '<option value="116">116</option>';
+            Name_options_str  += '<option value="117">117</option>';
+            Name_options_str  += '<option value="118">118</option>';
+            Name_options_str  += '<option value="119">119</option>';
+            Name_options_str  += '<option value="12">12</option>';
+            Name_options_str  += '<option value="120">120</option>';
+            Name_options_str  += '<option value="121">121</option>';
+            Name_options_str  += '<option value="122">122</option>';
+            Name_options_str  += '<option value="123">123</option>';
+            Name_options_str  += '<option value="124">124</option>';
+            Name_options_str  += '<option value="125">125</option>';
+            Name_options_str  += '<option value="126">126</option>';
+            Name_options_str  += '<option value="127">127</option>';
+            Name_options_str  += '<option value="128">128</option>';
+            Name_options_str  += '<option value="129">129</option>';
+            Name_options_str  += '<option value="13">13</option>';
+            Name_options_str  += '<option value="130">130</option>';
+            Name_options_str  += '<option value="131">131</option>';
+            Name_options_str  += '<option value="132">132</option>';
+            Name_options_str  += '<option value="133">133</option>';
+            Name_options_str  += '<option value="135">135</option>';
+            Name_options_str  += '<option value="136">136</option>';
+            Name_options_str  += '<option value="137">137</option>';
+            Name_options_str  += '<option value="138">138</option>';
+            Name_options_str  += '<option value="139">139</option>';
+            Name_options_str  += '<option value="140">140</option>';
+            Name_options_str  += '<option value="141">141</option>';
+            Name_options_str  += '<option value="142">142</option>';
+            Name_options_str  += '<option value="143">143</option>';
+            Name_options_str  += '<option value="144">144</option>';
+            Name_options_str  += '<option value="145">145</option>';
+            Name_options_str  += '<option value="146">146</option>';
+            Name_options_str  += '<option value="147">147</option>';
+            Name_options_str  += '<option value="148">148</option>';
+            Name_options_str  += '<option value="149">149</option>';
+            Name_options_str  += '<option value="150">150</option>';
+            Name_options_str  += '<option value="151">151</option>';
+            Name_options_str  += '<option value="153">153</option>';
+            Name_options_str  += '<option value="154">154</option>';
+            Name_options_str  += '<option value="155">155</option>';
+            Name_options_str  += '<option value="156">156</option>';
+            Name_options_str  += '<option value="157">157</option>';
+            Name_options_str  += '<option value="158">158</option>';
+            Name_options_str  += '<option value="159">159</option>';
+            Name_options_str  += '<option value="160">160</option>';
+            Name_options_str  += '<option value="161">161</option>';
+            Name_options_str  += '<option value="162">162</option>';
+            Name_options_str  += '<option value="163">163</option>';
+            Name_options_str  += '<option value="164">164</option>';
+            Name_options_str  += '<option value="165">165</option>';
+            Name_options_str  += '<option value="166">166</option>';
+            Name_options_str  += '<option value="167">167</option>';
+            Name_options_str  += '<option value="168">168</option>';
+            Name_options_str  += '<option value="169">169</option>';
+            Name_options_str  += '<option value="170">170</option>';
+            Name_options_str  += '<option value="171">171</option>';
+            Name_options_str  += '<option value="172">172</option>';
+            Name_options_str  += '<option value="173">173</option>';
+            Name_options_str  += '<option value="174">174</option>';
+            Name_options_str  += '<option value="175">175</option>';
+            Name_options_str  += '<option value="177">177</option>';
+            Name_options_str  += '<option value="178">178</option>';
+            Name_options_str  += '<option value="179">179</option>';
+            Name_options_str  += '<option value="180">180</option>';
+            Name_options_str  += '<option value="181">181</option>';
+            Name_options_str  += '<option value="182">182</option>';
+            Name_options_str  += '<option value="183">183</option>';
+            Name_options_str  += '<option value="184">184</option>';
+            Name_options_str  += '<option value="185">185</option>';
+            Name_options_str  += '<option value="186">186</option>';
+            Name_options_str  += '<option value="187">187</option>';
+            Name_options_str  += '<option value="188">188</option>';
+            Name_options_str  += '<option value="189">189</option>';
+            Name_options_str  += '<option value="190">190</option>';
+            Name_options_str  += '<option value="191">191</option>';
+            Name_options_str  += '<option value="192">192</option>';
+            Name_options_str  += '<option value="193">193</option>';
+            Name_options_str  += '<option value="194">194</option>';
+            Name_options_str  += '<option value="195">195</option>';
+            Name_options_str  += '<option value="196">196</option>';
+            Name_options_str  += '<option value="197">197</option>';
+            Name_options_str  += '<option value="198">198</option>';
+            Name_options_str  += '<option value="199">199</option>';
+            Name_options_str  += '<option value="200">200</option>';
+            Name_options_str  += '<option value="201">201</option>';
+            Name_options_str  += '<option value="202">202</option>';
+            Name_options_str  += '<option value="203">203</option>';
+            Name_options_str  += '<option value="204">204</option>';
+            Name_options_str  += '<option value="205">205</option>';
+            Name_options_str  += '<option value="206">206</option>';
+            Name_options_str  += '<option value="207">207</option>';
+            Name_options_str  += '<option value="209">209</option>';
+            Name_options_str  += '<option value="21">21</option>';
+            Name_options_str  += '<option value="210">210</option>';
+            Name_options_str  += '<option value="212">212</option>';
+            Name_options_str  += '<option value="213">213</option>';
+            Name_options_str  += '<option value="217">217</option>';
+            Name_options_str  += '<option value="218">218</option>';
+            Name_options_str  += '<option value="219">219</option>';
+            Name_options_str  += '<option value="220">220</option>';
+            Name_options_str  += '<option value="222">222</option>';
+            Name_options_str  += '<option value="228">228</option>';
+            Name_options_str  += '<option value="229">229</option>';
+            Name_options_str  += '<option value="232">232</option>';
+            Name_options_str  += '<option value="3">3</option>';
+            Name_options_str  += '<option value="4">4</option>';
+            Name_options_str  += '<option value="43">43</option>';
+            Name_options_str  += '<option value="5">5</option>';
+            Name_options_str  += '<option value="53">53</option>';
+            Name_options_str  += '<option value="55">55</option>';
+            Name_options_str  += '<option value="56">56</option>';
+            Name_options_str  += '<option value="57">57</option>';
+            Name_options_str  += '<option value="58">58</option>';
+            Name_options_str  += '<option value="59">59</option>';
+            Name_options_str  += '<option value="6">6</option>';
+            Name_options_str  += '<option value="60">60</option>';
+            Name_options_str  += '<option value="605">605</option>';
+            Name_options_str  += '<option value="606">606</option>';
+            Name_options_str  += '<option value="607">607</option>';
+            Name_options_str  += '<option value="608">608</option>';
+            Name_options_str  += '<option value="609">609</option>';
+            Name_options_str  += '<option value="61">61</option>';
+            Name_options_str  += '<option value="62">62</option>';
+            Name_options_str  += '<option value="63">63</option>';
+            Name_options_str  += '<option value="64">64</option>';
+            Name_options_str  += '<option value="65">65</option>';
+            Name_options_str  += '<option value="66">66</option>';
+            Name_options_str  += '<option value="67">67</option>';
+            Name_options_str  += '<option value="68">68</option>';
+            Name_options_str  += '<option value="69">69</option>';
+            Name_options_str  += '<option value="70">70</option>';
+            Name_options_str  += '<option value="71">71</option>';
+            Name_options_str  += '<option value="74">74</option>';
+            Name_options_str  += '<option value="75">75</option>';
+            Name_options_str  += '<option value="76">76</option>';
+            Name_options_str  += '<option value="762">762</option>';
+            Name_options_str  += '<option value="763">763</option>';
+            Name_options_str  += '<option value="77">77</option>';
+            Name_options_str  += '<option value="78">78</option>';
+            Name_options_str  += '<option value="79">79</option>';
+            Name_options_str  += '<option value="8">8</option>';
+            Name_options_str  += '<option value="80">80</option>';
+            Name_options_str  += '<option value="81">81</option>';
+            Name_options_str  += '<option value="83">83</option>';
+            Name_options_str  += '<option value="84">84</option>';
+            Name_options_str  += '<option value="85">85</option>';
+            Name_options_str  += '<option value="86">86</option>';
+            Name_options_str  += '<option value="87">87</option>';
+            Name_options_str  += '<option value="88">88</option>';
+            Name_options_str  += '<option value="89">89</option>';
+            Name_options_str  += '<option value="9">9</option>';
+            Name_options_str  += '<option value="90">90</option>';
+            Name_options_str  += '<option value="901">901</option>';
+            Name_options_str  += '<option value="903">903</option>';
+            Name_options_str  += '<option value="904">904</option>';
+            Name_options_str  += '<option value="91">91</option>';
+            Name_options_str  += '<option value="92">92</option>';
+            Name_options_str  += '<option value="93">93</option>';
+            Name_options_str  += '<option value="94">94</option>';
+            Name_options_str  += '<option value="95">95</option>';
+            Name_options_str  += '<option value="96">96</option>';
+            Name_options_str  += '<option value="97">97</option>';
+            Name_options_str  += '<option value="98">98</option>';
+            Name_options_str  += '<option value="99">99</option>';
+            sel_Name.innerHTML = Name_options_str;
+            div_Name.appendChild(sel_Name);
+            var lab_Name = document.createElement('div');
+            lab_Name.innerHTML = 'Name';
+            lab_Name.className = 'filterlabel';
+            div_Name.appendChild(lab_Name);
+            var reset_Name = document.createElement('div');
+            reset_Name.innerHTML = 'clear filter';
+            reset_Name.className = 'filterlabel';
+            reset_Name.onclick = function() {
+                var options = document.getElementById("sel_Name").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Name.appendChild(reset_Name);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_kdinfra = document.createElement('div');
+            div_kdinfra.id = "div_kdinfra";
+            div_kdinfra.className= "filterselect";
+            document.getElementById("menu").appendChild(div_kdinfra);
+            sel_kdinfra = document.createElement('select');
+            sel_kdinfra.multiple = true;
+            sel_kdinfra.size = 10;
+            sel_kdinfra.id = "sel_kdinfra";
+            var kdinfra_options_str = "<option value='' unselected></option>";
+            sel_kdinfra.onchange = function(){filterFunc()};
+            kdinfra_options_str  += '<option value="30010001">30010001</option>';
+            kdinfra_options_str  += '<option value="30010002">30010002</option>';
+            kdinfra_options_str  += '<option value="30010003">30010003</option>';
+            kdinfra_options_str  += '<option value="30010004">30010004</option>';
+            kdinfra_options_str  += '<option value="30010005">30010005</option>';
+            kdinfra_options_str  += '<option value="30010006">30010006</option>';
+            kdinfra_options_str  += '<option value="30010007">30010007</option>';
+            kdinfra_options_str  += '<option value="30010008">30010008</option>';
+            kdinfra_options_str  += '<option value="30010009">30010009</option>';
+            kdinfra_options_str  += '<option value="30010010">30010010</option>';
+            kdinfra_options_str  += '<option value="30010011">30010011</option>';
+            kdinfra_options_str  += '<option value="30010012">30010012</option>';
+            kdinfra_options_str  += '<option value="30010013">30010013</option>';
+            kdinfra_options_str  += '<option value="30010014">30010014</option>';
+            kdinfra_options_str  += '<option value="30010015">30010015</option>';
+            kdinfra_options_str  += '<option value="30010016">30010016</option>';
+            kdinfra_options_str  += '<option value="30010017">30010017</option>';
+            kdinfra_options_str  += '<option value="30010018">30010018</option>';
+            kdinfra_options_str  += '<option value="30010019">30010019</option>';
+            kdinfra_options_str  += '<option value="30010020">30010020</option>';
+            sel_kdinfra.innerHTML = kdinfra_options_str;
+            div_kdinfra.appendChild(sel_kdinfra);
+            var lab_kdinfra = document.createElement('div');
+            lab_kdinfra.innerHTML = 'kdinfra';
+            lab_kdinfra.className = 'filterlabel';
+            div_kdinfra.appendChild(lab_kdinfra);
+            var reset_kdinfra = document.createElement('div');
+            reset_kdinfra.innerHTML = 'clear filter';
+            reset_kdinfra.className = 'filterlabel';
+            reset_kdinfra.onclick = function() {
+                var options = document.getElementById("sel_kdinfra").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_kdinfra.appendChild(reset_kdinfra);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Nama = document.createElement('div');
+            div_Nama.id = "div_Nama";
+            div_Nama.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Nama);
+            sel_Nama = document.createElement('select');
+            sel_Nama.multiple = true;
+            sel_Nama.size = 1;
+            sel_Nama.id = "sel_Nama";
+            var Nama_options_str = "<option value='' unselected></option>";
+            sel_Nama.onchange = function(){filterFunc()};
+            Nama_options_str  += '<option value="NULL">NULL</option>';
+            sel_Nama.innerHTML = Nama_options_str;
+            div_Nama.appendChild(sel_Nama);
+            var lab_Nama = document.createElement('div');
+            lab_Nama.innerHTML = 'Nama';
+            lab_Nama.className = 'filterlabel';
+            div_Nama.appendChild(lab_Nama);
+            var reset_Nama = document.createElement('div');
+            reset_Nama.innerHTML = 'clear filter';
+            reset_Nama.className = 'filterlabel';
+            reset_Nama.onclick = function() {
+                var options = document.getElementById("sel_Nama").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Nama.appendChild(reset_Nama);
+        resetLabels([layer_Sekolah__3]);
+        map.on("zoomend", function(){
+            resetLabels([layer_Sekolah__3]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_Sekolah__3]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_Sekolah__3]);
+        });
+        </script>
+    </body>
+</html>
